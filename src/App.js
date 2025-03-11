@@ -1,5 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
+import { useState } from "react";
 
 function App() {
   let colours = [
@@ -25,17 +26,17 @@ function App() {
     AAA_LARGE: 4.5,
     GRAPHICS: 3,
   };
-  let ratioMode = null;
+  let [ratioMode, setRatioMode] = useState('');
 
   function isIdentical(bgColour, fgColour) {
     return bgColour === fgColour;
   }
 
   function getCellStyle(bgColour, fgColour) {
-    if (isIdentical(bgColour, fgColour)) {
-      return null;
+    if (isIdentical(bgColour, fgColour) || isUnsafeRatio(bgColour, fgColour)) {
+      return { textAlign: 'center' };
     }
-    return { backgroundColor: bgColour, color: fgColour };
+    return { backgroundColor: bgColour, color: fgColour, textAlign: 'right' };
   }
 
   // Calculating colour contrast values.
@@ -79,8 +80,26 @@ function App() {
     return contrast(bg, fg).toPrecision(PRECISION);
   }
 
-  function setRatioMode(e) {
-    console.log(e.target.value);
+  function setRatioModeHandler(e) {
+    let newRatioMode = e.target.value;
+    setRatioMode(newRatioMode);
+  }
+
+  function isUnsafeRatio(bgColour, fgColour) {
+    if (ratioMode !== '') {
+      return contrastValue(bgColour, fgColour) < SAFE_RATIOS[ratioMode];
+    }
+    return false;
+  }
+
+  function cellText(bgColour, fgColour) {
+    if (isIdentical(bgColour, fgColour)) {
+      return '×';
+    } else if (!isUnsafeRatio(bgColour, fgColour)) {
+      return contrastValue(bgColour, fgColour);
+    } else {
+      return '×';
+    }
   }
 
   return (
@@ -99,27 +118,27 @@ function App() {
             <legend>Display safe values</legend>
 
             <div className="form-check form-check-inline">
-              <input className="form-check-input" type="radio" name="ratio_mode" id="modeNone" value="" onClick={setRatioMode}></input>
+              <input className="form-check-input" type="radio" name="ratio_mode" id="modeNone" value="" onClick={setRatioModeHandler}></input>
               <label className="form-check-label" htmlFor="modeNone">none</label>
             </div>
             <div className="form-check form-check-inline">
-              <input className="form-check-input" type="radio" name="ratio_mode" id="modeAANormal" value="AA_NORMAL" onClick={setRatioMode}></input>
+              <input className="form-check-input" type="radio" name="ratio_mode" id="modeAANormal" value="AA_NORMAL" onClick={setRatioModeHandler}></input>
               <label className="form-check-label" htmlFor="modeAANormal">AA (normal text)</label>
             </div>
             <div className="form-check form-check-inline">
-              <input className="form-check-input" type="radio" name="ratio_mode" id="modeAALarge" value="AA_LARGE" onClick={setRatioMode}></input>
+              <input className="form-check-input" type="radio" name="ratio_mode" id="modeAALarge" value="AA_LARGE" onClick={setRatioModeHandler}></input>
               <label className="form-check-label" htmlFor="modeAALarge">AA (large text)</label>
             </div>
             <div className="form-check form-check-inline">
-              <input className="form-check-input" type="radio" name="ratio_mode" id="modeAAANormal" value="AAA_NORMAL" onClick={setRatioMode}></input>
+              <input className="form-check-input" type="radio" name="ratio_mode" id="modeAAANormal" value="AAA_NORMAL" onClick={setRatioModeHandler}></input>
               <label className="form-check-label" htmlFor="modeAAANormal">AAA (normal text)</label>
             </div>
             <div className="form-check form-check-inline">
-              <input className="form-check-input" type="radio" name="ratio_mode" id="modeAAALarge" value="AAA_LARGE" onClick={setRatioMode}></input>
-              <label className="form-check-label" htmlFor="modeAAALarge">AAS (large text)</label>
+              <input className="form-check-input" type="radio" name="ratio_mode" id="modeAAALarge" value="AAA_LARGE" onClick={setRatioModeHandler}></input>
+              <label className="form-check-label" htmlFor="modeAAALarge">AAA (large text)</label>
             </div>
             <div className="form-check form-check-inline">
-              <input className="form-check-input" type="radio" name="ratio_mode" id="modeGraphics" value="GRAPHICS" onClick={setRatioMode}></input>
+              <input className="form-check-input" type="radio" name="ratio_mode" id="modeGraphics" value="GRAPHICS" onClick={setRatioModeHandler}></input>
               <label className="form-check-label" htmlFor="modeGraphics">Graphics</label>
             </div>
           </fieldset>
@@ -142,9 +161,7 @@ function App() {
                       key={`cell-${rowIndex}-${columnIndex}`}
                       style={getCellStyle(rowHex, columnHex)}
                     >
-                      {!isIdentical(rowHex, columnHex)
-                        ? contrastValue(rowHex, columnHex)
-                        : ""}
+                      { cellText(rowHex, columnHex) }
                     </td>
                   ))}
                 </tr>
