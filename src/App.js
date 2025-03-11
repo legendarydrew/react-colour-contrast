@@ -3,7 +3,7 @@ import "./App.css";
 import { useState } from "react";
 
 function App() {
-  let colours = [
+  const defaultColours = [
     "#000000",
     "#FFFFFF",
     "#00FAF0",
@@ -26,7 +26,9 @@ function App() {
     AAA_LARGE: 4.5,
     GRAPHICS: 3,
   };
-  let [ratioMode, setRatioMode] = useState('');
+  let [ratioMode, setRatioMode] = useState("");
+  let [rawInput, setRawInput] = useState(defaultColours.join("\n"));
+  let [colourList, setColourList] = useState([]);
 
   function isIdentical(bgColour, fgColour) {
     return bgColour === fgColour;
@@ -34,9 +36,9 @@ function App() {
 
   function getCellStyle(bgColour, fgColour) {
     if (isIdentical(bgColour, fgColour) || isUnsafeRatio(bgColour, fgColour)) {
-      return { textAlign: 'center' };
+      return { textAlign: "center" };
     }
-    return { backgroundColor: bgColour, color: fgColour, textAlign: 'right' };
+    return { backgroundColor: bgColour, color: fgColour, textAlign: "right" };
   }
 
   // Calculating colour contrast values.
@@ -86,7 +88,7 @@ function App() {
   }
 
   function isUnsafeRatio(bgColour, fgColour) {
-    if (ratioMode !== '') {
+    if (ratioMode !== "") {
       return contrastValue(bgColour, fgColour) < SAFE_RATIOS[ratioMode];
     }
     return false;
@@ -94,11 +96,33 @@ function App() {
 
   function cellText(bgColour, fgColour) {
     if (isIdentical(bgColour, fgColour)) {
-      return '×';
+      return "×";
     } else if (!isUnsafeRatio(bgColour, fgColour)) {
       return contrastValue(bgColour, fgColour);
     } else {
-      return '×';
+      return "×";
+    }
+  }
+
+  function inputHandler(e) {
+    setRawInput(e.target.value);
+  }
+
+  function generateHandler(e) {
+    e.preventDefault();
+
+    // Parse the raw input, looking for hex colours.
+    // (At the moment we are just looking at six-character hex codes.)
+    let hexCodes = [
+      ...new Set(rawInput.match(new RegExp("(#[A-Z0-9]{6})", "gi"))),
+    ];
+
+    // do we have at least two? if not, show an error message.
+    // otherwise, generate the table.
+    if (hexCodes.length <= 2) {
+      alert("Two or more colours are required.");
+    } else {
+      setColourList(hexCodes);
     }
   }
 
@@ -112,62 +136,142 @@ function App() {
 
       <main className="p-3">
         <div className="container">
-          <p>The content goes here.</p>
+          <div class="row">
+            <form onSubmit={generateHandler} className="col-lg-3">
+              <label for="rawInput" className="form-label">
+                HTML colours
+              </label>
+              <textarea
+                className="form-control"
+                id="rawInput"
+                rows="12"
+                placeholder="Enter HTML hex codes (#xxxxxx)..."
+                onChange={inputHandler}
+              >
+                {rawInput}
+              </textarea>
+              <button className="btn btn-primary" type="submit">
+                Generate!
+              </button>
+            </form>
 
-          <fieldset className="mb-3">
-            <legend>Display safe values</legend>
+            <div className="col-lg-9">
+              <fieldset className="mb-3">
+                <legend>Safe values</legend>
 
-            <div className="form-check form-check-inline">
-              <input className="form-check-input" type="radio" name="ratio_mode" id="modeNone" value="" onClick={setRatioModeHandler}></input>
-              <label className="form-check-label" htmlFor="modeNone">none</label>
-            </div>
-            <div className="form-check form-check-inline">
-              <input className="form-check-input" type="radio" name="ratio_mode" id="modeAANormal" value="AA_NORMAL" onClick={setRatioModeHandler}></input>
-              <label className="form-check-label" htmlFor="modeAANormal">AA (normal text)</label>
-            </div>
-            <div className="form-check form-check-inline">
-              <input className="form-check-input" type="radio" name="ratio_mode" id="modeAALarge" value="AA_LARGE" onClick={setRatioModeHandler}></input>
-              <label className="form-check-label" htmlFor="modeAALarge">AA (large text)</label>
-            </div>
-            <div className="form-check form-check-inline">
-              <input className="form-check-input" type="radio" name="ratio_mode" id="modeAAANormal" value="AAA_NORMAL" onClick={setRatioModeHandler}></input>
-              <label className="form-check-label" htmlFor="modeAAANormal">AAA (normal text)</label>
-            </div>
-            <div className="form-check form-check-inline">
-              <input className="form-check-input" type="radio" name="ratio_mode" id="modeAAALarge" value="AAA_LARGE" onClick={setRatioModeHandler}></input>
-              <label className="form-check-label" htmlFor="modeAAALarge">AAA (large text)</label>
-            </div>
-            <div className="form-check form-check-inline">
-              <input className="form-check-input" type="radio" name="ratio_mode" id="modeGraphics" value="GRAPHICS" onClick={setRatioModeHandler}></input>
-              <label className="form-check-label" htmlFor="modeGraphics">Graphics</label>
-            </div>
-          </fieldset>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="ratio_mode"
+                    id="modeNone"
+                    value=""
+                    checked={ratioMode === ''}
+                    onClick={setRatioModeHandler}
+                  ></input>
+                  <label className="form-check-label" htmlFor="modeNone">
+                    none
+                  </label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="ratio_mode"
+                    id="modeAANormal"
+                    value="AA_NORMAL"
+                    checked={ratioMode === 'AA_NORMAL'}
+                    onClick={setRatioModeHandler}
+                  ></input>
+                  <label className="form-check-label" htmlFor="modeAANormal">
+                    AA (normal text)
+                  </label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="ratio_mode"
+                    id="modeAALarge"
+                    value="AA_LARGE"
+                    checked={ratioMode === 'AA_LARGE'}
+                    onClick={setRatioModeHandler}
+                  ></input>
+                  <label className="form-check-label" htmlFor="modeAALarge">
+                    AA (large text)
+                  </label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="ratio_mode"
+                    id="modeAAANormal"
+                    value="AAA_NORMAL"
+                    checked={ratioMode === 'AAA_NORMAL'}
+                    onClick={setRatioModeHandler}
+                  ></input>
+                  <label className="form-check-label" htmlFor="modeAAANormal">
+                    AAA (normal text)
+                  </label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="ratio_mode"
+                    id="modeAAALarge"
+                    value="AAA_LARGE"
+                    checked={ratioMode === 'AAA_LARGE'}
+                    onClick={setRatioModeHandler}
+                  ></input>
+                  <label className="form-check-label" htmlFor="modeAAALarge">
+                    AAA (large text)
+                  </label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="ratio_mode"
+                    id="modeGraphics"
+                    value="GRAPHICS"
+                    checked={ratioMode === 'GRAPHICS'}
+                    onClick={setRatioModeHandler}
+                  ></input>
+                  <label className="form-check-label" htmlFor="modeGraphics">
+                    Graphics
+                  </label>
+                </div>
+              </fieldset>
 
-          <table className="table">
-            <thead>
-              <tr>
-                <th>&nbsp;</th>
-                {colours.map((hex, index) => (
-                  <th key={"col-" + index}>{hex}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {colours.map((rowHex, rowIndex) => (
-                <tr key={"row-" + rowIndex}>
-                  <th scope="row">{rowHex}</th>
-                  {colours.map((columnHex, columnIndex) => (
-                    <td
-                      key={`cell-${rowIndex}-${columnIndex}`}
-                      style={getCellStyle(rowHex, columnHex)}
-                    >
-                      { cellText(rowHex, columnHex) }
-                    </td>
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>&nbsp;</th>
+                    {colourList.map((hex, index) => (
+                      <th className="text-center" scope="col" key={"col-" + index}>{hex}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {colourList.map((rowHex, rowIndex) => (
+                    <tr key={"row-" + rowIndex}>
+                      <th className="text-center" scope="row">{rowHex}</th>
+                      {colourList.map((columnHex, columnIndex) => (
+                        <td
+                          key={`cell-${rowIndex}-${columnIndex}`}
+                          style={getCellStyle(rowHex, columnHex)}
+                        >
+                          {cellText(rowHex, columnHex)}
+                        </td>
+                      ))}
+                    </tr>
                   ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </main>
 
