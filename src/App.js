@@ -4,6 +4,17 @@ import "./App.css";
 function App() {
   let colours = ["#FF0000", "#FFFF00", "#C022F0", "#0000FF"];
 
+  function isIdentical(bgColour, fgColour) {
+    return bgColour === fgColour;
+  }
+
+  function getCellStyle(bgColour, fgColour) {
+    if (isIdentical(bgColour, fgColour)) {
+      return null;
+    }
+    return { backgroundColor: bgColour, color: fgColour };
+  }
+
   return (
     <div className="App">
       <header className="p-3">
@@ -30,7 +41,9 @@ function App() {
               <tr>
                 <th scope="row" key={'row-' + rowIndex}>{rowHex}</th>
                 {colours.map((columnHex, columnIndex) => (
-                  <td key={`cell-${rowIndex}-${columnIndex}`}>{columnHex}</td>
+                  <td key={`cell-${rowIndex}-${columnIndex}`} style={getCellStyle(rowHex, columnHex)}>
+                    { !isIdentical(rowHex, columnHex) ? `Aa` : '' }
+                  </td>
                 ))}
               </tr>
             ))}
