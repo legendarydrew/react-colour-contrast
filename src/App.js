@@ -2,6 +2,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { useState } from "react";
 
+// TODO divide this into components!
+// TODO consider saving the (edited) raw input into localStorage.
+// TODO consider support for rgb(), also sometimes found in stylesheets.
+
 function App() {
   const defaultColours = [
     "#000000",
@@ -26,14 +30,30 @@ function App() {
     AAA_LARGE: 4.5,
     GRAPHICS: 3,
   };
+  const CONTRAST_PRECISION = 2; // how many decimal places to display.
+
   let [ratioMode, setRatioMode] = useState("");
   let [rawInput, setRawInput] = useState(defaultColours.join("\n"));
   let [colourList, setColourList] = useState([]);
 
+  /**
+   * Returns TRUE if both provided colours are identical.
+   *
+   * @param {string} bgColour
+   * @param {string} fgColour
+   * @returns {boolean}
+   */
   function isIdentical(bgColour, fgColour) {
     return bgColour === fgColour;
   }
 
+  /**
+   * Returns style attributes to use for a colour combination.
+   *
+   * @param {string} bgColour
+   * @param {string} fgColour
+   * @returns {backgroundColor: string, color: string, textAlign: string}
+   */
   function getCellStyle(bgColour, fgColour) {
     if (isIdentical(bgColour, fgColour) || isUnsafeRatio(bgColour, fgColour)) {
       return { textAlign: "center" };
@@ -66,14 +86,26 @@ function App() {
     return (brightest + 0.05) / (darkest + 0.05);
   }
 
+  /**
+   * Returns the contrast ratio between two [hex] colours.
+   *
+   * @param string bgColour
+   * @param string fgColour
+   * @returns number
+   */
   function contrastValue(bgColour, fgColour) {
-    // TODO we're assuming the colour codes are provided as three- or six-letter hex values.
-    const PRECISION = 3;
     const bg = hexToRGB(bgColour);
     const fg = hexToRGB(fgColour);
-    return contrast(bg, fg).toPrecision(PRECISION);
+    return contrast(bg, fg).toFixed(CONTRAST_PRECISION);
   }
 
+  /**
+   * Converts a hex colour to RGB values.
+   * The hex colour can be either three or six characters long.
+   *
+   * @param string hexCode
+   * @returns an array with three properties, corresponding to RGB values.
+   */
   function hexToRGB(hexCode) {
     if (hexCode.length >= 6) {
       return [
@@ -88,13 +120,26 @@ function App() {
         hexCode.slice(-1),
       ].map((v) => parseInt(`0x${v + v}`));
     }
+
+    return [0, 0, 0];
   }
 
+  /**
+   * Updates the currently selected ratio mode.
+   * @param {Event} e
+   */
   function setRatioModeHandler(e) {
     let newRatioMode = e.target.value;
     setRatioMode(newRatioMode);
   }
 
+  /**
+   * Returns TRUE if the provided colours are considered "unsafe" based on the selected ratio mode.
+   *
+   * @param {string} bgColour
+   * @param {string} fgColour
+   * @returns {boolean}
+   */
   function isUnsafeRatio(bgColour, fgColour) {
     if (ratioMode !== "") {
       return contrastValue(bgColour, fgColour) < SAFE_RATIOS[ratioMode];
@@ -102,14 +147,22 @@ function App() {
     return false;
   }
 
+  /**
+   * Returns text to display for a colour combination.
+   * If the colour combination is considered unsafe, or the colours are identical, a "cross" is shown.
+   *
+   * @param {string} bgColour
+   * @param {string} fgColour
+   * @returns {backgroundColor: string, color: string, textAlign: string}
+   */
   function cellText(bgColour, fgColour) {
-    if (isIdentical(bgColour, fgColour)) {
-      return "×";
-    } else if (!isUnsafeRatio(bgColour, fgColour)) {
+    if (
+      !(isIdentical(bgColour, fgColour) || isUnsafeRatio(bgColour, fgColour))
+    ) {
       return contrastValue(bgColour, fgColour);
-    } else {
-      return "×";
     }
+
+    return "×";
   }
 
   function inputHandler(e) {
@@ -125,7 +178,7 @@ function App() {
       ...new Set(
         rawInput.match(new RegExp("(#[A-Z0-9]{6})|(#[A-Z0-9]{3})", "gi"))
       ),
-      // We look for the six-character hex codes first.
+      // We look for the six-character hex codes first. (Thank you regex101.com.)
     ];
 
     // Do we have at least two colours? If not, show an error message.
