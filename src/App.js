@@ -147,9 +147,9 @@ function App() {
 
       <main className="p-3">
         <div className="container">
-          <div class="row">
+          <div className="row">
             <form onSubmit={generateHandler} className="col-lg-3">
-              <label for="rawInput" className="form-label">
+              <label htmlFor="rawInput" className="form-label">
                 HTML colours
               </label>
               <textarea
@@ -158,12 +158,13 @@ function App() {
                 rows="12"
                 placeholder="Enter HTML hex codes (#xxxxxx)..."
                 onChange={inputHandler}
-              >
-                {rawInput}
-              </textarea>
-              <button className="btn btn-primary" type="submit">
-                Generate!
-              </button>
+                value={rawInput}
+              ></textarea>
+              <div className="d-grid mt-1">
+                <button className="btn btn-lg btn-primary" type="submit">
+                  Generate!
+                </button>
+              </div>
             </form>
 
             <div className="col-lg-9">
@@ -177,7 +178,7 @@ function App() {
                     name="ratio_mode"
                     id="modeNone"
                     value=""
-                    checked={ratioMode === ""}
+                    defaultChecked={ratioMode === ""}
                     onClick={setRatioModeHandler}
                   ></input>
                   <label className="form-check-label" htmlFor="modeNone">
@@ -191,7 +192,7 @@ function App() {
                     name="ratio_mode"
                     id="modeAANormal"
                     value="AA_NORMAL"
-                    checked={ratioMode === "AA_NORMAL"}
+                    defaultChecked={ratioMode === "AA_NORMAL"}
                     onClick={setRatioModeHandler}
                   ></input>
                   <label className="form-check-label" htmlFor="modeAANormal">
@@ -205,7 +206,7 @@ function App() {
                     name="ratio_mode"
                     id="modeAALarge"
                     value="AA_LARGE"
-                    checked={ratioMode === "AA_LARGE"}
+                    defaultChecked={ratioMode === "AA_LARGE"}
                     onClick={setRatioModeHandler}
                   ></input>
                   <label className="form-check-label" htmlFor="modeAALarge">
@@ -219,7 +220,7 @@ function App() {
                     name="ratio_mode"
                     id="modeAAANormal"
                     value="AAA_NORMAL"
-                    checked={ratioMode === "AAA_NORMAL"}
+                    defaultChecked={ratioMode === "AAA_NORMAL"}
                     onClick={setRatioModeHandler}
                   ></input>
                   <label className="form-check-label" htmlFor="modeAAANormal">
@@ -233,7 +234,7 @@ function App() {
                     name="ratio_mode"
                     id="modeAAALarge"
                     value="AAA_LARGE"
-                    checked={ratioMode === "AAA_LARGE"}
+                    defaultChecked={ratioMode === "AAA_LARGE"}
                     onClick={setRatioModeHandler}
                   ></input>
                   <label className="form-check-label" htmlFor="modeAAALarge">
@@ -247,7 +248,7 @@ function App() {
                     name="ratio_mode"
                     id="modeGraphics"
                     value="GRAPHICS"
-                    checked={ratioMode === "GRAPHICS"}
+                    defaultChecked={ratioMode === "GRAPHICS"}
                     onClick={setRatioModeHandler}
                   ></input>
                   <label className="form-check-label" htmlFor="modeGraphics">
