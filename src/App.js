@@ -67,19 +67,27 @@ function App() {
   }
 
   function contrastValue(bgColour, fgColour) {
-    // TODO we're assuming the colour codes are provided as six-letter hex values.
+    // TODO we're assuming the colour codes are provided as three- or six-letter hex values.
     const PRECISION = 3;
-    const bg = [
-      bgColour.slice(-6, -4),
-      bgColour.slice(-4, -2),
-      bgColour.slice(-2),
-    ].map((v) => parseInt(`0x${v}`));
-    const fg = [
-      fgColour.slice(-6, -4),
-      fgColour.slice(-4, -2),
-      fgColour.slice(-2),
-    ].map((v) => parseInt(`0x${v}`));
+    const bg = hexToRGB(bgColour);
+    const fg = hexToRGB(fgColour);
     return contrast(bg, fg).toPrecision(PRECISION);
+  }
+
+  function hexToRGB(hexCode) {
+    if (hexCode.length >= 6) {
+      return [
+        hexCode.slice(-6, -4),
+        hexCode.slice(-4, -2),
+        hexCode.slice(-2),
+      ].map((v) => parseInt(`0x${v}`));
+    } else if (hexCode.length >= 3) {
+      return [
+        hexCode.slice(-3, -2),
+        hexCode.slice(-2, -1),
+        hexCode.slice(-1),
+      ].map((v) => parseInt(`0x${v + v}`));
+    }
   }
 
   function setRatioModeHandler(e) {
@@ -112,12 +120,15 @@ function App() {
     e.preventDefault();
 
     // Parse the raw input, looking for hex colours.
-    // (At the moment we are just looking at six-character hex codes.)
+    // (At the moment we are just looking at three- and six-character hex codes.)
     let hexCodes = [
-      ...new Set(rawInput.match(new RegExp("(#[A-Z0-9]{6})", "gi"))),
+      ...new Set(
+        rawInput.match(new RegExp("(#[A-Z0-9]{6})|(#[A-Z0-9]{3})", "gi"))
+      ),
+      // We look for the six-character hex codes first.
     ];
 
-    // do we have at least two? if not, show an error message.
+    // Do we have at least two colours? If not, show an error message.
     // otherwise, generate the table.
     if (hexCodes.length <= 2) {
       alert("Two or more colours are required.");
@@ -142,7 +153,7 @@ function App() {
                 HTML colours
               </label>
               <textarea
-                className="form-control"
+                className="form-control font-monospace"
                 id="rawInput"
                 rows="12"
                 placeholder="Enter HTML hex codes (#xxxxxx)..."
@@ -166,7 +177,7 @@ function App() {
                     name="ratio_mode"
                     id="modeNone"
                     value=""
-                    checked={ratioMode === ''}
+                    checked={ratioMode === ""}
                     onClick={setRatioModeHandler}
                   ></input>
                   <label className="form-check-label" htmlFor="modeNone">
@@ -180,11 +191,11 @@ function App() {
                     name="ratio_mode"
                     id="modeAANormal"
                     value="AA_NORMAL"
-                    checked={ratioMode === 'AA_NORMAL'}
+                    checked={ratioMode === "AA_NORMAL"}
                     onClick={setRatioModeHandler}
                   ></input>
                   <label className="form-check-label" htmlFor="modeAANormal">
-                    AA (normal text)
+                    <b>AA</b> (normal text)
                   </label>
                 </div>
                 <div className="form-check form-check-inline">
@@ -194,11 +205,11 @@ function App() {
                     name="ratio_mode"
                     id="modeAALarge"
                     value="AA_LARGE"
-                    checked={ratioMode === 'AA_LARGE'}
+                    checked={ratioMode === "AA_LARGE"}
                     onClick={setRatioModeHandler}
                   ></input>
                   <label className="form-check-label" htmlFor="modeAALarge">
-                    AA (large text)
+                    <b>AA</b> (large text)
                   </label>
                 </div>
                 <div className="form-check form-check-inline">
@@ -208,11 +219,11 @@ function App() {
                     name="ratio_mode"
                     id="modeAAANormal"
                     value="AAA_NORMAL"
-                    checked={ratioMode === 'AAA_NORMAL'}
+                    checked={ratioMode === "AAA_NORMAL"}
                     onClick={setRatioModeHandler}
                   ></input>
                   <label className="form-check-label" htmlFor="modeAAANormal">
-                    AAA (normal text)
+                    <b>AAA</b> (normal text)
                   </label>
                 </div>
                 <div className="form-check form-check-inline">
@@ -222,11 +233,11 @@ function App() {
                     name="ratio_mode"
                     id="modeAAALarge"
                     value="AAA_LARGE"
-                    checked={ratioMode === 'AAA_LARGE'}
+                    checked={ratioMode === "AAA_LARGE"}
                     onClick={setRatioModeHandler}
                   ></input>
                   <label className="form-check-label" htmlFor="modeAAALarge">
-                    AAA (large text)
+                    <b>AAA</b> (large text)
                   </label>
                 </div>
                 <div className="form-check form-check-inline">
@@ -236,7 +247,7 @@ function App() {
                     name="ratio_mode"
                     id="modeGraphics"
                     value="GRAPHICS"
-                    checked={ratioMode === 'GRAPHICS'}
+                    checked={ratioMode === "GRAPHICS"}
                     onClick={setRatioModeHandler}
                   ></input>
                   <label className="form-check-label" htmlFor="modeGraphics">
@@ -245,31 +256,41 @@ function App() {
                 </div>
               </fieldset>
 
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>&nbsp;</th>
-                    {colourList.map((hex, index) => (
-                      <th className="text-center" scope="col" key={"col-" + index}>{hex}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {colourList.map((rowHex, rowIndex) => (
-                    <tr key={"row-" + rowIndex}>
-                      <th className="text-center" scope="row">{rowHex}</th>
-                      {colourList.map((columnHex, columnIndex) => (
-                        <td
-                          key={`cell-${rowIndex}-${columnIndex}`}
-                          style={getCellStyle(rowHex, columnHex)}
+              <div className="table-responsive">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>&nbsp;</th>
+                      {colourList.map((hex, index) => (
+                        <th
+                          className="text-center"
+                          scope="col"
+                          key={"col-" + index}
                         >
-                          {cellText(rowHex, columnHex)}
-                        </td>
+                          {hex}
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {colourList.map((rowHex, rowIndex) => (
+                      <tr key={"row-" + rowIndex}>
+                        <th className="text-center" scope="row">
+                          {rowHex}
+                        </th>
+                        {colourList.map((columnHex, columnIndex) => (
+                          <td
+                            key={`cell-${rowIndex}-${columnIndex}`}
+                            style={getCellStyle(rowHex, columnHex)}
+                          >
+                            {cellText(rowHex, columnHex)}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
