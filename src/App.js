@@ -1,6 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { useState } from "react";
+import RawInput from "./components/RawInput";
 
 // TODO divide this into components!
 // TODO consider saving the (edited) raw input into localStorage.
@@ -33,7 +34,6 @@ function App() {
   const CONTRAST_PRECISION = 2; // how many decimal places to display.
 
   let [ratioMode, setRatioMode] = useState("");
-  let [rawInput, setRawInput] = useState(defaultColours.join("\n"));
   let [colourList, setColourList] = useState([]);
 
   /**
@@ -165,29 +165,25 @@ function App() {
     return "×";
   }
 
-  function inputHandler(e) {
-    setRawInput(e.target.value);
-  }
+  function generateTable(rawInput) {
+    
+    console.log(rawInput);
+    // // Parse the raw input, looking for hex colours.
+    // // (At the moment we are just looking at three- and six-character hex codes.)
+    // let hexCodes = [
+    //   ...new Set(
+    //     rawInput.match(new RegExp("(#[A-Z0-9]{6})|(#[A-Z0-9]{3})", "gi"))
+    //   ),
+    //   // We look for the six-character hex codes first. (Thank you regex101.com.)
+    // ];
 
-  function generateHandler(e) {
-    e.preventDefault();
-
-    // Parse the raw input, looking for hex colours.
-    // (At the moment we are just looking at three- and six-character hex codes.)
-    let hexCodes = [
-      ...new Set(
-        rawInput.match(new RegExp("(#[A-Z0-9]{6})|(#[A-Z0-9]{3})", "gi"))
-      ),
-      // We look for the six-character hex codes first. (Thank you regex101.com.)
-    ];
-
-    // Do we have at least two colours? If not, show an error message.
-    // otherwise, generate the table.
-    if (hexCodes.length <= 2) {
-      alert("Two or more colours are required.");
-    } else {
-      setColourList(hexCodes);
-    }
+    // // Do we have at least two colours? If not, show an error message.
+    // // otherwise, generate the table.
+    // if (hexCodes.length <= 2) {
+    //   alert("Two or more colours are required.");
+    // } else {
+    //   setColourList(hexCodes);
+    // }
   }
 
   return (
@@ -201,24 +197,7 @@ function App() {
       <main className="p-3">
         <div className="container">
           <div className="row">
-            <form onSubmit={generateHandler} className="col-lg-3">
-              <label htmlFor="rawInput" className="form-label">
-                HTML colours
-              </label>
-              <textarea
-                className="form-control font-monospace"
-                id="rawInput"
-                rows="12"
-                placeholder="Enter HTML hex codes (#xxxxxx)..."
-                onChange={inputHandler}
-                value={rawInput}
-              ></textarea>
-              <div className="d-grid mt-1">
-                <button className="btn btn-lg btn-primary" type="submit">
-                  Generate!
-                </button>
-              </div>
-            </form>
+            <RawInput defaultValue={defaultColours} generateHandler={generateTable}></RawInput>
 
             <div className="col-lg-9">
               <fieldset className="mb-3">
