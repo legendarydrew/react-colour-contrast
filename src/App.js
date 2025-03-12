@@ -47,7 +47,7 @@ export default function App() {
 
   return (
     <div className="App">
-      <header className="p-3">
+      <header className="bg-secondary-subtle p-3">
         <div className="container">
           <h1>Colour Contrast Table Thing</h1>
         </div>
@@ -76,8 +76,8 @@ export default function App() {
         </div>
       </main>
 
-      <footer>
-        <div className="container fs-6 text-center p-2">
+      <footer className="bg-light py-3 px-5">
+        <div className="container fs-6 text-center">
           Copyright &copy; Drew Maughan, all rights reserved.
         </div>
       </footer>

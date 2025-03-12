@@ -52,7 +52,8 @@ export default function ContrastTable({ colourList, ratioMode }) {
 
   return (
     <div className="table-responsive">
-      <table className="table">
+        {colourList.length ? (
+      <table className="table table-hover">
         <thead>
           <tr>
             <th>&nbsp;</th>
@@ -81,6 +82,7 @@ export default function ContrastTable({ colourList, ratioMode }) {
           ))}
         </tbody>
       </table>
+      ) : ''}
     </div>
   );
 }

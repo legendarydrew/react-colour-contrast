@@ -1,4 +1,19 @@
-# Getting Started with Create React App
+# react-colour-contrast
+
+Given a list of HTML colours, generates a table displaying the contrast values of each colour combination.
+
+This was an idea for a tool I would potentially find useful, as someone who is concerned about web site accessibility.
+
+## Objectives
+- User provides a list of hex colour codes (or perhaps even named colours).
+- A two-dimensional table is generated from the provided colour codes.
+- Each cell in the table corresponds with a background and foreground colour.
+- Each cell also displays the respective colour contrast score.
+- Indicate which combinations are NOT web-safe:
+	- for WC3G AA level
+	- for WC3G AAA level
+	- considering text sizes.
+
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
