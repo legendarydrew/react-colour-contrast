@@ -1,15 +1,14 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { useState } from "react";
-import { contrastValue, isUnsafeRatio } from "./functions";
 import RawInput from "./components/RawInput";
 import RatioSelect from "./components/RatioSelect";
+import ContrastTable from "./components/ContrastTable";
 
-// TODO divide this into components!
 // TODO consider saving the (edited) raw input into localStorage.
 // TODO consider support for rgb(), also sometimes found in stylesheets.
 
-function App() {
+export default function App() {
   const defaultColours = [
     "#000000",
     "#FFFFFF",
@@ -27,52 +26,7 @@ function App() {
   let [ratioMode, setRatioMode] = useState("");
   let [colourList, setColourList] = useState([]);
 
-  /**
-   * Returns TRUE if both provided colours are identical.
-   *
-   * @param {string} bgColour
-   * @param {string} fgColour
-   * @returns {boolean}
-   */
-  function isIdentical(bgColour, fgColour) {
-    return bgColour === fgColour;
-  }
-
-  /**
-   * Returns style attributes to use for a colour combination.
-   *
-   * @param {string} bgColour
-   * @param {string} fgColour
-   * @returns {backgroundColor: string, color: string, textAlign: string}
-   */
-  function getCellStyle(bgColour, fgColour) {
-    if (isIdentical(bgColour, fgColour) || isUnsafeRatio(ratioMode, bgColour, fgColour)) {
-      return { textAlign: "center" };
-    }
-    return { backgroundColor: bgColour, color: fgColour, textAlign: "right" };
-  }
-
-
-  /**
-   * Returns text to display for a colour combination.
-   * If the colour combination is considered unsafe, or the colours are identical, a "cross" is shown.
-   *
-   * @param {string} bgColour
-   * @param {string} fgColour
-   * @returns {backgroundColor: string, color: string, textAlign: string}
-   */
-  function cellText(bgColour, fgColour) {
-    if (
-      !(isIdentical(bgColour, fgColour) || isUnsafeRatio(ratioMode, bgColour, fgColour))
-    ) {
-      return contrastValue(bgColour, fgColour);
-    }
-
-    return "×";
-  }
-
   function generateTable(rawInput) {
-    
     // Parse the raw input, looking for hex colours.
     // (At the moment we are just looking at three- and six-character hex codes.)
     let hexCodes = [
@@ -102,46 +56,21 @@ function App() {
       <main className="p-3">
         <div className="container">
           <div className="row">
-            <RawInput defaultValue={defaultColours} generateHandler={generateTable}></RawInput>
+            <RawInput
+              defaultValue={defaultColours}
+              generateHandler={generateTable}
+            ></RawInput>
 
             <div className="col-lg-9">
-              <RatioSelect selected={ratioMode} selectHandler={(newMode) => setRatioMode(newMode)}></RatioSelect>
+              <RatioSelect
+                selected={ratioMode}
+                selectHandler={(newMode) => setRatioMode(newMode)}
+              ></RatioSelect>
 
-              <div className="table-responsive">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>&nbsp;</th>
-                      {colourList.map((hex, index) => (
-                        <th
-                          className="text-center"
-                          scope="col"
-                          key={"col-" + index}
-                        >
-                          {hex}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {colourList.map((rowHex, rowIndex) => (
-                      <tr key={"row-" + rowIndex}>
-                        <th className="text-center" scope="row">
-                          {rowHex}
-                        </th>
-                        {colourList.map((columnHex, columnIndex) => (
-                          <td
-                            key={`cell-${rowIndex}-${columnIndex}`}
-                            style={getCellStyle(rowHex, columnHex)}
-                          >
-                            {cellText(rowHex, columnHex)}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <ContrastTable
+                ratioMode={ratioMode}
+                colourList={colourList}
+              ></ContrastTable>
             </div>
           </div>
         </div>
@@ -155,5 +84,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
