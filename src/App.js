@@ -3,6 +3,7 @@ import "./App.css";
 import { useState } from "react";
 import { contrastValue, isUnsafeRatio } from "./functions";
 import RawInput from "./components/RawInput";
+import RatioSelect from "./components/RatioSelect";
 
 // TODO divide this into components!
 // TODO consider saving the (edited) raw input into localStorage.
@@ -51,14 +52,6 @@ function App() {
     return { backgroundColor: bgColour, color: fgColour, textAlign: "right" };
   }
 
-  /**
-   * Updates the currently selected ratio mode.
-   * @param {Event} e
-   */
-  function setRatioModeHandler(e) {
-    let newRatioMode = e.target.value;
-    setRatioMode(newRatioMode);
-  }
 
   /**
    * Returns text to display for a colour combination.
@@ -112,94 +105,7 @@ function App() {
             <RawInput defaultValue={defaultColours} generateHandler={generateTable}></RawInput>
 
             <div className="col-lg-9">
-              <fieldset className="mb-3">
-                <legend>Safe values</legend>
-
-                <div className="form-check form-check-inline">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="ratio_mode"
-                    id="modeNone"
-                    value=""
-                    defaultChecked={ratioMode === ""}
-                    onClick={setRatioModeHandler}
-                  ></input>
-                  <label className="form-check-label" htmlFor="modeNone">
-                    none
-                  </label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="ratio_mode"
-                    id="modeAANormal"
-                    value="AA_NORMAL"
-                    defaultChecked={ratioMode === "AA_NORMAL"}
-                    onClick={setRatioModeHandler}
-                  ></input>
-                  <label className="form-check-label" htmlFor="modeAANormal">
-                    <b>AA</b> (normal text)
-                  </label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="ratio_mode"
-                    id="modeAALarge"
-                    value="AA_LARGE"
-                    defaultChecked={ratioMode === "AA_LARGE"}
-                    onClick={setRatioModeHandler}
-                  ></input>
-                  <label className="form-check-label" htmlFor="modeAALarge">
-                    <b>AA</b> (large text)
-                  </label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="ratio_mode"
-                    id="modeAAANormal"
-                    value="AAA_NORMAL"
-                    defaultChecked={ratioMode === "AAA_NORMAL"}
-                    onClick={setRatioModeHandler}
-                  ></input>
-                  <label className="form-check-label" htmlFor="modeAAANormal">
-                    <b>AAA</b> (normal text)
-                  </label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="ratio_mode"
-                    id="modeAAALarge"
-                    value="AAA_LARGE"
-                    defaultChecked={ratioMode === "AAA_LARGE"}
-                    onClick={setRatioModeHandler}
-                  ></input>
-                  <label className="form-check-label" htmlFor="modeAAALarge">
-                    <b>AAA</b> (large text)
-                  </label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="ratio_mode"
-                    id="modeGraphics"
-                    value="GRAPHICS"
-                    defaultChecked={ratioMode === "GRAPHICS"}
-                    onClick={setRatioModeHandler}
-                  ></input>
-                  <label className="form-check-label" htmlFor="modeGraphics">
-                    Graphics
-                  </label>
-                </div>
-              </fieldset>
+              <RatioSelect selected={ratioMode} selectHandler={(newMode) => setRatioMode(newMode)}></RatioSelect>
 
               <div className="table-responsive">
                 <table className="table">
