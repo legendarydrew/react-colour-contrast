@@ -1,4 +1,5 @@
 import { isUnsafeRatio, contrastValue } from "../functions";
+import "./ContrastTable.css";
 
 export default function ContrastTable({ colourList, ratioMode }) {
   /**
@@ -42,47 +43,51 @@ export default function ContrastTable({ colourList, ratioMode }) {
    */
   function getCellStyle(bgColour, fgColour) {
     if (
-      isIdentical(bgColour, fgColour) ||
-      isUnsafeRatio(ratioMode, bgColour, fgColour)
+      !(
+        isIdentical(bgColour, fgColour) ||
+        isUnsafeRatio(ratioMode, bgColour, fgColour)
+      )
     ) {
-      return { textAlign: "center" };
+      return { backgroundColor: bgColour, color: fgColour };
     }
-    return { backgroundColor: bgColour, color: fgColour, textAlign: "right" };
   }
 
   return (
     <div className="table-responsive">
-        {colourList.length ? (
-      <table className="table table-hover">
-        <thead>
-          <tr>
-            <th>&nbsp;</th>
-            {colourList.map((hex, index) => (
-              <th className="text-center" scope="col" key={"col-" + index}>
-                {hex}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {colourList.map((rowHex, rowIndex) => (
-            <tr key={"row-" + rowIndex}>
-              <th className="text-center" scope="row">
-                {rowHex}
-              </th>
-              {colourList.map((columnHex, columnIndex) => (
-                <td
-                  key={`cell-${rowIndex}-${columnIndex}`}
-                  style={getCellStyle(rowHex, columnHex)}
-                >
-                  {cellText(rowHex, columnHex)}
-                </td>
+      {colourList.length ? (
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th>&nbsp;</th>
+              {colourList.map((hex, index) => (
+                <th className="text-center" scope="col" key={"col-" + index}>
+                  {hex}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-      ) : ''}
+          </thead>
+          <tbody>
+            {colourList.map((rowHex, rowIndex) => (
+              <tr key={"row-" + rowIndex}>
+                <th className="text-end align-middle" scope="row">
+                  {rowHex}
+                </th>
+                {colourList.map((columnHex, columnIndex) => (
+                  <td
+                    key={`cell-${rowIndex}-${columnIndex}`}
+                    className="align-middle text-center"
+                    style={getCellStyle(rowHex, columnHex)}
+                  >
+                    {cellText(rowHex, columnHex)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        ""
+      )}
     </div>
   );
 }
